@@ -181,9 +181,33 @@ namespace
 
         // input
         static constexpr int KEY_MAX = 512;
+        static constexpr int MOUSE_BUTTON_MAX = 16;
         bool key_down[KEY_MAX]{};
         bool key_pressed[KEY_MAX]{};
         bool key_released[KEY_MAX]{};
+
+        double mouse_x = 0.0;
+        double mouse_y = 0.0;
+        double mouse_prev_x = 0.0;
+        double mouse_prev_y = 0.0;
+        double mouse_dx = 0.0;
+        double mouse_dy = 0.0;
+        bool mouse_moved = false;
+
+        bool mouse_down[MOUSE_BUTTON_MAX]{};
+        bool mouse_pressed[MOUSE_BUTTON_MAX]{};
+        bool mouse_released[MOUSE_BUTTON_MAX]{};
+
+        double mouse_scroll_x = 0.0;
+        double mouse_scroll_y = 0.0;
+        bool mouse_scrolled = false;
+
+        bool mouse_in_window = false;
+        bool mouse_entered = false;
+        bool mouse_left = false;
+
+        bool cursor_visible = true;
+        bool cursor_captured = false;
 
         // headless timer fallback
         std::chrono::steady_clock::time_point t0 = std::chrono::steady_clock::now();
@@ -217,6 +241,61 @@ namespace
     {
         g.display_w = std::max(1, w);
         g.display_h = std::max(1, h);
+    }
+
+    static void glfw_cursor_pos_cb(GLFWwindow*, double x, double y)
+    {
+        const double prev_x = g.mouse_x;
+        const double prev_y = g.mouse_y;
+
+        g.mouse_prev_x = prev_x;
+        g.mouse_prev_y = prev_y;
+        g.mouse_x = x;
+        g.mouse_y = y;
+
+        const double dx = x - prev_x;
+        const double dy = y - prev_y;
+        g.mouse_dx += dx;
+        g.mouse_dy += dy;
+        if (dx != 0.0 || dy != 0.0) g.mouse_moved = true;
+    }
+
+    static void glfw_mouse_button_cb(GLFWwindow*, int button, int action, int)
+    {
+        if (button < 0 || button >= State::MOUSE_BUTTON_MAX) return;
+
+        if (action == GLFW_PRESS)
+        {
+            if (!g.mouse_down[button]) g.mouse_pressed[button] = true;
+            g.mouse_down[button] = true;
+        }
+        else if (action == GLFW_RELEASE)
+        {
+            g.mouse_down[button] = false;
+            g.mouse_released[button] = true;
+        }
+    }
+
+    static void glfw_scroll_cb(GLFWwindow*, double xoffset, double yoffset)
+    {
+        g.mouse_scroll_x += xoffset;
+        g.mouse_scroll_y += yoffset;
+        if (xoffset != 0.0 || yoffset != 0.0) g.mouse_scrolled = true;
+    }
+
+    static void glfw_cursor_enter_cb(GLFWwindow*, int entered)
+    {
+        const bool is_in = (entered == GLFW_TRUE);
+        if (is_in)
+        {
+            g.mouse_in_window = true;
+            g.mouse_entered = true;
+        }
+        else
+        {
+            g.mouse_in_window = false;
+            g.mouse_left = true;
+        }
     }
 
     // -------------------------
@@ -714,7 +793,7 @@ namespace
                         B0.z * B0.invw * lB +
                         C0.z * C0.invw * lC) * w;
 
-                    // Optional safety clamp (helps if near-plane “no clipping” produces weird z)
+                    // Optional safety clamp (helps if near-plane Â“no clippingÂ” produces weird z)
                     // z = clampf(z, 0.0f, 1.0f);
 
                     if (depth_test && g.depth_on)
@@ -1363,6 +1442,7 @@ namespace Engine_
             g.gl_ready = false;
             g.can_present = false;
             g.initialized = true;
+            g.want_close = false;
             g.last_time = 0.0;
             g.t0 = std::chrono::steady_clock::now();
             return true;
@@ -1393,6 +1473,15 @@ namespace Engine_
 
         glfwSetKeyCallback(g.window, glfw_key_cb);
         glfwSetWindowSizeCallback(g.window, glfw_window_size_cb);
+        glfwSetCursorPosCallback(g.window, glfw_cursor_pos_cb);
+        glfwSetMouseButtonCallback(g.window, glfw_mouse_button_cb);
+        glfwSetScrollCallback(g.window, glfw_scroll_cb);
+        glfwSetCursorEnterCallback(g.window, glfw_cursor_enter_cb);
+
+        glfwGetCursorPos(g.window, &g.mouse_x, &g.mouse_y);
+        g.mouse_prev_x = g.mouse_x;
+        g.mouse_prev_y = g.mouse_y;
+        g.mouse_in_window = true;
 
         glewExperimental = GL_TRUE;
         GLenum err = glewInit();
@@ -1413,6 +1502,7 @@ namespace Engine_
 
         g.gl_ready = true;
         g.initialized = true;
+        g.want_close = false;
         g.last_time = glfwGetTime();
         return true;
     }
@@ -1441,6 +1531,30 @@ namespace Engine_
         g.post_out.clear();
         g.bloom.reset();
 
+        for (int i = 0; i < State::KEY_MAX; ++i)
+        {
+            g.key_down[i] = false;
+            g.key_pressed[i] = false;
+            g.key_released[i] = false;
+        }
+        for (int i = 0; i < State::MOUSE_BUTTON_MAX; ++i)
+        {
+            g.mouse_down[i] = false;
+            g.mouse_pressed[i] = false;
+            g.mouse_released[i] = false;
+        }
+        g.mouse_x = g.mouse_y = 0.0;
+        g.mouse_prev_x = g.mouse_prev_y = 0.0;
+        g.mouse_dx = g.mouse_dy = 0.0;
+        g.mouse_moved = false;
+        g.mouse_scroll_x = g.mouse_scroll_y = 0.0;
+        g.mouse_scrolled = false;
+        g.mouse_in_window = false;
+        g.mouse_entered = false;
+        g.mouse_left = false;
+        g.cursor_visible = true;
+        g.cursor_captured = false;
+
         g.initialized = false;
         g.gl_ready = false;
         g.can_present = false;
@@ -1465,12 +1579,29 @@ namespace Engine_
 
     void poll_events()
     {
-        // clear edge flags
+        // clear key edge flags
         for (int i = 0; i < State::KEY_MAX; ++i)
         {
             g.key_pressed[i] = false;
             g.key_released[i] = false;
         }
+
+        // clear mouse per-frame flags/deltas
+        for (int i = 0; i < State::MOUSE_BUTTON_MAX; ++i)
+        {
+            g.mouse_pressed[i] = false;
+            g.mouse_released[i] = false;
+        }
+        g.mouse_prev_x = g.mouse_x;
+        g.mouse_prev_y = g.mouse_y;
+        g.mouse_dx = 0.0;
+        g.mouse_dy = 0.0;
+        g.mouse_moved = false;
+        g.mouse_scroll_x = 0.0;
+        g.mouse_scroll_y = 0.0;
+        g.mouse_scrolled = false;
+        g.mouse_entered = false;
+        g.mouse_left = false;
 
         double now = 0.0;
         if (g.cfg.headless)
@@ -1518,6 +1649,90 @@ namespace Engine_
         if (key < 0 || key >= State::KEY_MAX) return false;
         return g.key_released[key];
     }
+
+    double mouse_x() { return g.mouse_x; }
+    double mouse_y() { return g.mouse_y; }
+    double mouse_prev_x() { return g.mouse_prev_x; }
+    double mouse_prev_y() { return g.mouse_prev_y; }
+    double mouse_dx() { return g.mouse_dx; }
+    double mouse_dy() { return g.mouse_dy; }
+    bool mouse_moved() { return g.mouse_moved; }
+
+    bool mouse_down(int button)
+    {
+        if (button < 0 || button >= State::MOUSE_BUTTON_MAX) return false;
+        return g.mouse_down[button];
+    }
+
+    bool mouse_pressed(int button)
+    {
+        if (button < 0 || button >= State::MOUSE_BUTTON_MAX) return false;
+        return g.mouse_pressed[button];
+    }
+
+    bool mouse_released(int button)
+    {
+        if (button < 0 || button >= State::MOUSE_BUTTON_MAX) return false;
+        return g.mouse_released[button];
+    }
+
+    double mouse_scroll_x() { return g.mouse_scroll_x; }
+    double mouse_scroll_y() { return g.mouse_scroll_y; }
+    bool mouse_scrolled() { return g.mouse_scrolled; }
+
+    bool mouse_in_window() { return g.mouse_in_window; }
+    bool mouse_entered() { return g.mouse_entered; }
+    bool mouse_left() { return g.mouse_left; }
+
+    double mouse_fb_x()
+    {
+        if (g.display_w <= 0 || g.fb_w <= 0) return 0.0;
+        return (g.mouse_x / (double)g.display_w) * (double)g.fb_w;
+    }
+
+    double mouse_fb_y()
+    {
+        if (g.display_h <= 0 || g.fb_h <= 0) return 0.0;
+        return (g.mouse_y / (double)g.display_h) * (double)g.fb_h;
+    }
+
+    int mouse_fb_ix()
+    {
+        return (int)std::floor(mouse_fb_x());
+    }
+
+    int mouse_fb_iy()
+    {
+        return (int)std::floor(mouse_fb_y());
+    }
+
+    void set_cursor_visible(bool visible)
+    {
+        g.cursor_visible = visible;
+        if (g.cfg.headless || !g.window) return;
+
+        if (g.cursor_captured) return;
+        glfwSetInputMode(g.window, GLFW_CURSOR, visible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
+    }
+
+    bool cursor_visible() { return g.cursor_visible; }
+
+    void set_cursor_captured(bool captured)
+    {
+        g.cursor_captured = captured;
+        if (g.cfg.headless || !g.window) return;
+
+        if (captured)
+        {
+            glfwSetInputMode(g.window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        }
+        else
+        {
+            glfwSetInputMode(g.window, GLFW_CURSOR, g.cursor_visible ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_HIDDEN);
+        }
+    }
+
+    bool cursor_captured() { return g.cursor_captured; }
 
     // ------------------------------------------------------------
     // Framebuffer / state

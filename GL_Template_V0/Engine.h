@@ -59,6 +59,11 @@ namespace Engine_
     constexpr int KEY_RIGHT_BRACKET = 93;
     constexpr int KEY_ESCAPE = 256;
 
+    // Mouse buttons (GLFW-style values)
+    constexpr int MOUSE_BUTTON_LEFT = 0;
+    constexpr int MOUSE_BUTTON_RIGHT = 1;
+    constexpr int MOUSE_BUTTON_MIDDLE = 2;
+
     // ------------------------------------------------------------
     // Basic math types (tiny, no glm dependency)
     // ------------------------------------------------------------
@@ -187,6 +192,39 @@ namespace Engine_
     bool key_down(int key);
     bool key_pressed(int key);  // true only on the frame the key transitions up->down
     bool key_released(int key);
+
+    double mouse_x();
+    double mouse_y();
+    double mouse_prev_x();
+    double mouse_prev_y();
+    double mouse_dx();
+    double mouse_dy();
+    bool mouse_moved();
+
+    bool mouse_down(int button);
+    bool mouse_pressed(int button);   // true only on transition up->down this frame
+    bool mouse_released(int button);  // true only on transition down->up this frame
+
+    double mouse_scroll_x();
+    double mouse_scroll_y();
+    bool mouse_scrolled();
+
+    bool mouse_in_window();
+    bool mouse_entered();
+    bool mouse_left();
+
+    // Proportional mapping from display/window coordinates to framebuffer coordinates.
+    // Integer versions return floor(mapped_value).
+    double mouse_fb_x();
+    double mouse_fb_y();
+    int mouse_fb_ix();
+    int mouse_fb_iy();
+
+    // Optional cursor control (no-op in headless mode).
+    void set_cursor_visible(bool visible);
+    bool cursor_visible();
+    void set_cursor_captured(bool captured);
+    bool cursor_captured();
 
     // ------------------------------------------------------------
     // Framebuffer / state
