@@ -41,6 +41,19 @@ return function(ctx)
     state.toneOn = state.toneOn or false
     state.tone_exposure = state.tone_exposure or 1.25
     state.tone_gamma = state.tone_gamma or 2.2
+
+    state.mouseTrail = state.mouseTrail or {}
+    state.mouseTrailMax = state.mouseTrailMax or 24
+    state.mousePulse = state.mousePulse or 0.0
+  end
+
+
+  local function push_mouse_trail(x, y, pressed)
+    local trail = state.mouseTrail
+    trail[#trail + 1] = { x = x, y = y, pressed = pressed, t = state.t }
+    while #trail > state.mouseTrailMax do
+      table.remove(trail, 1)
+    end
   end
 
   local function apply_pp_from_state()
@@ -61,7 +74,7 @@ return function(ctx)
       gfx.mesh.make_cube("cube", 1.0)
     end
 
-    -- Create a ìprocedurally generatedî texture ONCE by drawing into the framebuffer then capturing it.
+    -- Create a ‚Äúprocedurally generated‚Äù texture ONCE by drawing into the framebuffer then capturing it.
     if not gfx.tex.exists("paint_tex") then
       local W, H = gfx.frame.fb_size()
 
@@ -155,6 +168,25 @@ return function(ctx)
       gfx.frame.save_png(true)
       gfx.frame.next()
       Engine.cpp_log("Saved frame.")
+    end
+
+    local mouse = gfx.mouse.events()
+    if mouse.moved or mouse.left_pressed or mouse.right_pressed or mouse.middle_pressed then
+      push_mouse_trail(mouse.x, mouse.y, mouse.left_down or mouse.right_down or mouse.middle_down)
+    end
+
+    if mouse.left_pressed then
+      Engine.cpp_log(("Mouse left pressed @ (%.1f, %.1f)"):format(mouse.x, mouse.y))
+    end
+    if mouse.right_pressed then
+      Engine.cpp_log(("Mouse right pressed @ (%.1f, %.1f)"):format(mouse.x, mouse.y))
+    end
+    if mouse.middle_pressed then
+      Engine.cpp_log(("Mouse middle pressed @ (%.1f, %.1f)"):format(mouse.x, mouse.y))
+    end
+
+    if mouse.scrolled then
+      Engine.cpp_log(("Mouse scroll (%.2f, %.2f)"):format(mouse.scroll_x, mouse.scroll_y))
     end
 
     -- --------------------------------------------
@@ -251,6 +283,53 @@ return function(ctx)
       local tex = (gfx.tex.exists("paint_tex") and "paint_tex") or "checker"
       gfx.mesh.draw_named("cube", MVP, tex, true)
     end
+
+
+    -- Mouse event showcase (cursor halo + trail + button states)
+    local pulse = (math.sin(state.t * 8.0) * 0.5 + 0.5)
+    local haloR = 16 + pulse * 8
+    local haloColor = mouse.in_window and C(120, 200, 255, 220) or C(120, 120, 120, 180)
+
+    gfx.draw.circle(mouse.x, mouse.y, haloR, haloColor, false, 2)
+    gfx.draw.line(mouse.x - 12, mouse.y, mouse.x + 12, mouse.y, C(255, 255, 255, 220), 1)
+    gfx.draw.line(mouse.x, mouse.y - 12, mouse.x, mouse.y + 12, C(255, 255, 255, 220), 1)
+
+    if mouse.left_down then
+      gfx.draw.circle(mouse.x, mouse.y, 8, C(100, 255, 100, 220), true)
+    elseif mouse.right_down then
+      gfx.draw.circle(mouse.x, mouse.y, 8, C(255, 120, 120, 220), true)
+    elseif mouse.middle_down then
+      gfx.draw.circle(mouse.x, mouse.y, 8, C(120, 120, 255, 220), true)
+    end
+
+    for i = 1, #state.mouseTrail do
+      local p = state.mouseTrail[i]
+      local alpha = math.floor((i / math.max(1, #state.mouseTrail)) * 180)
+      local col = p.pressed and C(255, 220, 120, alpha) or C(120, 220, 255, alpha)
+      gfx.draw.circle(p.x, p.y, 2 + i * 0.15, col, true)
+    end
+
+    local panelX, panelY = 20, H - 170
+    gfx.draw.rect(panelX, panelY, 430, 140, C(10, 10, 16, 200), true)
+    gfx.draw.rect(panelX, panelY, 430, 140, C(180, 200, 255, 220), false, 1)
+
+    local dx_vis = math.max(-60, math.min(60, mouse.dx * 8))
+    local dy_vis = math.max(-60, math.min(60, mouse.dy * 8))
+    gfx.draw.line(panelX + 90, panelY + 70, panelX + 90 + dx_vis, panelY + 70, C(120, 255, 120, 255), 3)
+    gfx.draw.line(panelX + 90, panelY + 70, panelX + 90, panelY + 70 + dy_vis, C(255, 120, 120, 255), 3)
+
+    local sx = panelX + 240
+    local sy = panelY + 70
+    gfx.draw.circle(sx, sy, 20, C(90, 120, 255, 220), false, 1)
+    local sdx = math.max(-18, math.min(18, mouse.scroll_x * 6))
+    local sdy = math.max(-18, math.min(18, mouse.scroll_y * 6))
+    gfx.draw.line(sx, sy, sx + sdx, sy, C(120, 200, 255, 255), 2)
+    gfx.draw.line(sx, sy, sx, sy - sdy, C(255, 220, 120, 255), 2)
+
+    local by = panelY + 112
+    gfx.draw.rect(panelX + 24, by, 24, 16, mouse.left_down and C(100,255,100,255) or C(60,60,60,255), true)
+    gfx.draw.rect(panelX + 56, by, 24, 16, mouse.middle_down and C(120,120,255,255) or C(60,60,60,255), true)
+    gfx.draw.rect(panelX + 88, by, 24, 16, mouse.right_down and C(255,120,120,255) or C(60,60,60,255), true)
 
     gfx.frame["end"](true)
   end
