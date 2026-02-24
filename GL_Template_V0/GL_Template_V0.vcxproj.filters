@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\LUA">
+      <UniqueIdentifier>{176e7b75-92c6-4141-b983-764d3a1399d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\LUA\scripts">
+      <UniqueIdentifier>{8b6e987e-1e76-4cc3-8ab2-4679d63ba635}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Utils">
+      <UniqueIdentifier>{aaf3a929-f56f-4cc5-8664-0dcbd49ac43d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stb_impl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FindScriptsFolder.cpp">
+      <Filter>Source Files\Utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Engine.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FindScriptsFolder.h">
+      <Filter>Source Files\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="Sandbox.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="scripts\main_lua_example_v1_4.lua">
+      <Filter>Source Files\LUA\scripts</Filter>
+    </None>
+    <None Include="scripts\main_lua_example_v1_4_math_extra.lua">
+      <Filter>Source Files\LUA\scripts</Filter>
+    </None>
+    <None Include="scripts\main_lua_example_v1_4_util.lua">
+      <Filter>Source Files\LUA\scripts</Filter>
+    </None>
+    <None Include="scripts\main_lua_example_v1_4_generating.lua">
+      <Filter>Source Files\LUA\scripts</Filter>
+    </None>
+    <None Include="scripts\gfx.lua">
+      <Filter>Source Files\LUA\scripts</Filter>
+    </None>
+    <None Include="scripts\game_scene_demo_0000.lua">
+      <Filter>Source Files\LUA\scripts</Filter>
+    </None>
+    <None Include="scripts\game_scene_demo_0001.lua">
+      <Filter>Source Files\LUA\scripts</Filter>
+    </None>
+  </ItemGroup>
+</Project>
