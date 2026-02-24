@@ -359,6 +359,30 @@ inline std::function<double()> cb_delta_seconds;
 inline std::function<bool(int key)> cb_key_down;
 inline std::function<bool(int key)> cb_key_pressed;
 inline std::function<bool(int key)> cb_key_released;
+inline std::function<double()> cb_mouse_x;
+inline std::function<double()> cb_mouse_y;
+inline std::function<double()> cb_mouse_prev_x;
+inline std::function<double()> cb_mouse_prev_y;
+inline std::function<double()> cb_mouse_dx;
+inline std::function<double()> cb_mouse_dy;
+inline std::function<bool()> cb_mouse_moved;
+inline std::function<bool(int button)> cb_mouse_down;
+inline std::function<bool(int button)> cb_mouse_pressed;
+inline std::function<bool(int button)> cb_mouse_released;
+inline std::function<double()> cb_mouse_scroll_x;
+inline std::function<double()> cb_mouse_scroll_y;
+inline std::function<bool()> cb_mouse_scrolled;
+inline std::function<bool()> cb_mouse_in_window;
+inline std::function<bool()> cb_mouse_entered;
+inline std::function<bool()> cb_mouse_left;
+inline std::function<double()> cb_mouse_fb_x;
+inline std::function<double()> cb_mouse_fb_y;
+inline std::function<int()> cb_mouse_fb_ix;
+inline std::function<int()> cb_mouse_fb_iy;
+inline std::function<void(bool visible)> cb_set_cursor_visible;
+inline std::function<bool()> cb_cursor_visible;
+inline std::function<void(bool captured)> cb_set_cursor_captured;
+inline std::function<bool()> cb_cursor_captured;
 inline std::function<bool()> cb_should_close;
 inline std::function<void()> cb_request_close;
 inline std::function<void()> cb_poll_events;
@@ -422,6 +446,30 @@ inline void bind_engine_defaults()
     cb_key_down = [](int key){ return Engine_::key_down(key); };
     cb_key_pressed = [](int key){ return Engine_::key_pressed(key); };
     cb_key_released = [](int key){ return Engine_::key_released(key); };
+    cb_mouse_x = [](){ return Engine_::mouse_x(); };
+    cb_mouse_y = [](){ return Engine_::mouse_y(); };
+    cb_mouse_prev_x = [](){ return Engine_::mouse_prev_x(); };
+    cb_mouse_prev_y = [](){ return Engine_::mouse_prev_y(); };
+    cb_mouse_dx = [](){ return Engine_::mouse_dx(); };
+    cb_mouse_dy = [](){ return Engine_::mouse_dy(); };
+    cb_mouse_moved = [](){ return Engine_::mouse_moved(); };
+    cb_mouse_down = [](int button){ return Engine_::mouse_down(button); };
+    cb_mouse_pressed = [](int button){ return Engine_::mouse_pressed(button); };
+    cb_mouse_released = [](int button){ return Engine_::mouse_released(button); };
+    cb_mouse_scroll_x = [](){ return Engine_::mouse_scroll_x(); };
+    cb_mouse_scroll_y = [](){ return Engine_::mouse_scroll_y(); };
+    cb_mouse_scrolled = [](){ return Engine_::mouse_scrolled(); };
+    cb_mouse_in_window = [](){ return Engine_::mouse_in_window(); };
+    cb_mouse_entered = [](){ return Engine_::mouse_entered(); };
+    cb_mouse_left = [](){ return Engine_::mouse_left(); };
+    cb_mouse_fb_x = [](){ return Engine_::mouse_fb_x(); };
+    cb_mouse_fb_y = [](){ return Engine_::mouse_fb_y(); };
+    cb_mouse_fb_ix = [](){ return Engine_::mouse_fb_ix(); };
+    cb_mouse_fb_iy = [](){ return Engine_::mouse_fb_iy(); };
+    cb_set_cursor_visible = [](bool visible){ Engine_::set_cursor_visible(visible); };
+    cb_cursor_visible = [](){ return Engine_::cursor_visible(); };
+    cb_set_cursor_captured = [](bool captured){ Engine_::set_cursor_captured(captured); };
+    cb_cursor_captured = [](){ return Engine_::cursor_captured(); };
     cb_should_close = [](){ return Engine_::should_close(); };
     cb_request_close = [](){ Engine_::request_close(); };
     cb_poll_events = [](){ Engine_::poll_events(); };
@@ -510,6 +558,201 @@ inline sol::variadic_results dispatch(sol::this_state ts, const sol::table& arr)
         const int key = get_int(arr, 2, 0, true);
         if (!cb_key_released) throw std::runtime_error("Callback not set for op: key_released");
         auto r = cb_key_released(key);
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_x")
+    {
+        if (!cb_mouse_x) throw std::runtime_error("Callback not set for op: mouse_x");
+        auto r = cb_mouse_x();
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_y")
+    {
+        if (!cb_mouse_y) throw std::runtime_error("Callback not set for op: mouse_y");
+        auto r = cb_mouse_y();
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_prev_x")
+    {
+        if (!cb_mouse_prev_x) throw std::runtime_error("Callback not set for op: mouse_prev_x");
+        auto r = cb_mouse_prev_x();
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_prev_y")
+    {
+        if (!cb_mouse_prev_y) throw std::runtime_error("Callback not set for op: mouse_prev_y");
+        auto r = cb_mouse_prev_y();
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_dx")
+    {
+        if (!cb_mouse_dx) throw std::runtime_error("Callback not set for op: mouse_dx");
+        auto r = cb_mouse_dx();
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_dy")
+    {
+        if (!cb_mouse_dy) throw std::runtime_error("Callback not set for op: mouse_dy");
+        auto r = cb_mouse_dy();
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_moved")
+    {
+        if (!cb_mouse_moved) throw std::runtime_error("Callback not set for op: mouse_moved");
+        auto r = cb_mouse_moved();
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_down")
+    {
+        const int button = get_int(arr, 2, 0, true);
+        if (!cb_mouse_down) throw std::runtime_error("Callback not set for op: mouse_down");
+        auto r = cb_mouse_down(button);
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_pressed")
+    {
+        const int button = get_int(arr, 2, 0, true);
+        if (!cb_mouse_pressed) throw std::runtime_error("Callback not set for op: mouse_pressed");
+        auto r = cb_mouse_pressed(button);
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_released")
+    {
+        const int button = get_int(arr, 2, 0, true);
+        if (!cb_mouse_released) throw std::runtime_error("Callback not set for op: mouse_released");
+        auto r = cb_mouse_released(button);
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_scroll_x")
+    {
+        if (!cb_mouse_scroll_x) throw std::runtime_error("Callback not set for op: mouse_scroll_x");
+        auto r = cb_mouse_scroll_x();
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_scroll_y")
+    {
+        if (!cb_mouse_scroll_y) throw std::runtime_error("Callback not set for op: mouse_scroll_y");
+        auto r = cb_mouse_scroll_y();
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_scrolled")
+    {
+        if (!cb_mouse_scrolled) throw std::runtime_error("Callback not set for op: mouse_scrolled");
+        auto r = cb_mouse_scrolled();
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_in_window")
+    {
+        if (!cb_mouse_in_window) throw std::runtime_error("Callback not set for op: mouse_in_window");
+        auto r = cb_mouse_in_window();
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_entered")
+    {
+        if (!cb_mouse_entered) throw std::runtime_error("Callback not set for op: mouse_entered");
+        auto r = cb_mouse_entered();
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_left")
+    {
+        if (!cb_mouse_left) throw std::runtime_error("Callback not set for op: mouse_left");
+        auto r = cb_mouse_left();
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_fb_x")
+    {
+        if (!cb_mouse_fb_x) throw std::runtime_error("Callback not set for op: mouse_fb_x");
+        auto r = cb_mouse_fb_x();
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_fb_y")
+    {
+        if (!cb_mouse_fb_y) throw std::runtime_error("Callback not set for op: mouse_fb_y");
+        auto r = cb_mouse_fb_y();
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_fb_ix")
+    {
+        if (!cb_mouse_fb_ix) throw std::runtime_error("Callback not set for op: mouse_fb_ix");
+        auto r = cb_mouse_fb_ix();
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "mouse_fb_iy")
+    {
+        if (!cb_mouse_fb_iy) throw std::runtime_error("Callback not set for op: mouse_fb_iy");
+        auto r = cb_mouse_fb_iy();
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "set_cursor_visible")
+    {
+        const bool visible = get_bool(arr, 2, false, true);
+        if (!cb_set_cursor_visible) throw std::runtime_error("Callback not set for op: set_cursor_visible");
+        cb_set_cursor_visible(visible);
+        return out;
+    }
+    
+    else if (op == "cursor_visible")
+    {
+        if (!cb_cursor_visible) throw std::runtime_error("Callback not set for op: cursor_visible");
+        auto r = cb_cursor_visible();
+        out.push_back(sol::make_object(lua, r));
+        return out;
+    }
+    
+    else if (op == "set_cursor_captured")
+    {
+        const bool captured = get_bool(arr, 2, false, true);
+        if (!cb_set_cursor_captured) throw std::runtime_error("Callback not set for op: set_cursor_captured");
+        cb_set_cursor_captured(captured);
+        return out;
+    }
+    
+    else if (op == "cursor_captured")
+    {
+        if (!cb_cursor_captured) throw std::runtime_error("Callback not set for op: cursor_captured");
+        auto r = cb_cursor_captured();
         out.push_back(sol::make_object(lua, r));
         return out;
     }
