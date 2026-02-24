@@ -151,6 +151,10 @@ return function(cmd)
         return gfx.mouse_x(), gfx.mouse_y()
     end
 
+    function gfx.mouse_prev_pos()
+        return gfx.mouse_prev_x(), gfx.mouse_prev_y()
+    end
+
     function gfx.mouse_prev_x()
         return cmd({"mouse_prev_x"})
     end
@@ -165,6 +169,10 @@ return function(cmd)
 
     function gfx.mouse_dy()
         return cmd({"mouse_dy"})
+    end
+
+    function gfx.mouse_delta()
+        return gfx.mouse_dx(), gfx.mouse_dy()
     end
 
     function gfx.mouse_moved()
@@ -192,6 +200,10 @@ return function(cmd)
 
     function gfx.mouse_scroll_y()
         return cmd({"mouse_scroll_y"})
+    end
+
+    function gfx.mouse_scroll()
+        return gfx.mouse_scroll_x(), gfx.mouse_scroll_y()
     end
 
     function gfx.mouse_scrolled()
@@ -224,6 +236,122 @@ return function(cmd)
 
     function gfx.mouse_fb_iy()
         return cmd({"mouse_fb_iy"})
+    end
+
+    function gfx.mouse_fb_pos()
+        return gfx.mouse_fb_x(), gfx.mouse_fb_y()
+    end
+
+    function gfx.mouse_fb_ipos()
+        return gfx.mouse_fb_ix(), gfx.mouse_fb_iy()
+    end
+
+    gfx.MOUSE_BUTTON_LEFT = 0
+    gfx.MOUSE_BUTTON_RIGHT = 1
+    gfx.MOUSE_BUTTON_MIDDLE = 2
+
+    local function is_mouse_button_active(query_fn, start_button, end_button)
+        for button = start_button, end_button do
+            if query_fn(button) then
+                return true, button
+            end
+        end
+        return false, -1
+    end
+
+    function gfx.mouse_any_down(start_button, end_button)
+        start_button = (start_button == nil) and 0 or iround(start_button, "start_button", 2)
+        end_button = (end_button == nil) and 7 or iround(end_button, "end_button", 2)
+        if start_button > end_button then
+            start_button, end_button = end_button, start_button
+        end
+        return is_mouse_button_active(gfx.mouse_down, start_button, end_button)
+    end
+
+    function gfx.mouse_any_pressed(start_button, end_button)
+        start_button = (start_button == nil) and 0 or iround(start_button, "start_button", 2)
+        end_button = (end_button == nil) and 7 or iround(end_button, "end_button", 2)
+        if start_button > end_button then
+            start_button, end_button = end_button, start_button
+        end
+        return is_mouse_button_active(gfx.mouse_pressed, start_button, end_button)
+    end
+
+    function gfx.mouse_any_released(start_button, end_button)
+        start_button = (start_button == nil) and 0 or iround(start_button, "start_button", 2)
+        end_button = (end_button == nil) and 7 or iround(end_button, "end_button", 2)
+        if start_button > end_button then
+            start_button, end_button = end_button, start_button
+        end
+        return is_mouse_button_active(gfx.mouse_released, start_button, end_button)
+    end
+
+    function gfx.mouse_left_down()
+        return gfx.mouse_down(gfx.MOUSE_BUTTON_LEFT)
+    end
+
+    function gfx.mouse_right_down()
+        return gfx.mouse_down(gfx.MOUSE_BUTTON_RIGHT)
+    end
+
+    function gfx.mouse_middle_down()
+        return gfx.mouse_down(gfx.MOUSE_BUTTON_MIDDLE)
+    end
+
+    function gfx.mouse_left_pressed()
+        return gfx.mouse_pressed(gfx.MOUSE_BUTTON_LEFT)
+    end
+
+    function gfx.mouse_right_pressed()
+        return gfx.mouse_pressed(gfx.MOUSE_BUTTON_RIGHT)
+    end
+
+    function gfx.mouse_middle_pressed()
+        return gfx.mouse_pressed(gfx.MOUSE_BUTTON_MIDDLE)
+    end
+
+    function gfx.mouse_left_released()
+        return gfx.mouse_released(gfx.MOUSE_BUTTON_LEFT)
+    end
+
+    function gfx.mouse_right_released()
+        return gfx.mouse_released(gfx.MOUSE_BUTTON_RIGHT)
+    end
+
+    function gfx.mouse_middle_released()
+        return gfx.mouse_released(gfx.MOUSE_BUTTON_MIDDLE)
+    end
+
+    function gfx.mouse_events()
+        local x, y = gfx.mouse_pos()
+        local px, py = gfx.mouse_prev_pos()
+        local dx, dy = gfx.mouse_delta()
+        local sx, sy = gfx.mouse_scroll()
+        local fbx, fby = gfx.mouse_fb_pos()
+        local fbix, fbiy = gfx.mouse_fb_ipos()
+
+        return {
+            x = x, y = y,
+            prev_x = px, prev_y = py,
+            dx = dx, dy = dy,
+            moved = gfx.mouse_moved(),
+            scroll_x = sx, scroll_y = sy,
+            scrolled = gfx.mouse_scrolled(),
+            in_window = gfx.mouse_in_window(),
+            entered = gfx.mouse_entered(),
+            left = gfx.mouse_left(),
+            fb_x = fbx, fb_y = fby,
+            fb_ix = fbix, fb_iy = fbiy,
+            left_down = gfx.mouse_left_down(),
+            right_down = gfx.mouse_right_down(),
+            middle_down = gfx.mouse_middle_down(),
+            left_pressed = gfx.mouse_left_pressed(),
+            right_pressed = gfx.mouse_right_pressed(),
+            middle_pressed = gfx.mouse_middle_pressed(),
+            left_released = gfx.mouse_left_released(),
+            right_released = gfx.mouse_right_released(),
+            middle_released = gfx.mouse_middle_released(),
+        }
     end
 
     function gfx.set_cursor_visible(visible)
@@ -570,16 +698,34 @@ return function(cmd)
     down = gfx.mouse_down,
     pressed = gfx.mouse_pressed,
     released = gfx.mouse_released,
+    left_down = gfx.mouse_left_down,
+    right_down = gfx.mouse_right_down,
+    middle_down = gfx.mouse_middle_down,
+    left_pressed = gfx.mouse_left_pressed,
+    right_pressed = gfx.mouse_right_pressed,
+    middle_pressed = gfx.mouse_middle_pressed,
+    left_released = gfx.mouse_left_released,
+    right_released = gfx.mouse_right_released,
+    middle_released = gfx.mouse_middle_released,
+    any_down = gfx.mouse_any_down,
+    any_pressed = gfx.mouse_any_pressed,
+    any_released = gfx.mouse_any_released,
     scroll_x = gfx.mouse_scroll_x,
     scroll_y = gfx.mouse_scroll_y,
+    scroll = gfx.mouse_scroll,
     scrolled = gfx.mouse_scrolled,
     in_window = gfx.mouse_in_window,
     entered = gfx.mouse_entered,
     left = gfx.mouse_left,
+    prev_pos = gfx.mouse_prev_pos,
+    delta = gfx.mouse_delta,
     fb_x = gfx.mouse_fb_x,
     fb_y = gfx.mouse_fb_y,
     fb_ix = gfx.mouse_fb_ix,
     fb_iy = gfx.mouse_fb_iy,
+    fb_pos = gfx.mouse_fb_pos,
+    fb_ipos = gfx.mouse_fb_ipos,
+    events = gfx.mouse_events,
     set_cursor_visible = gfx.set_cursor_visible,
     cursor_visible = gfx.cursor_visible,
     set_cursor_captured = gfx.set_cursor_captured,
