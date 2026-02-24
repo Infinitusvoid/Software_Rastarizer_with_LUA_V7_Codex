@@ -139,6 +139,111 @@ return function(cmd)
         return cmd({"key_pressed", keycode})
     end
 
+    function gfx.mouse_x()
+        return cmd({"mouse_x"})
+    end
+
+    function gfx.mouse_y()
+        return cmd({"mouse_y"})
+    end
+
+    function gfx.mouse_pos()
+        return gfx.mouse_x(), gfx.mouse_y()
+    end
+
+    function gfx.mouse_prev_x()
+        return cmd({"mouse_prev_x"})
+    end
+
+    function gfx.mouse_prev_y()
+        return cmd({"mouse_prev_y"})
+    end
+
+    function gfx.mouse_dx()
+        return cmd({"mouse_dx"})
+    end
+
+    function gfx.mouse_dy()
+        return cmd({"mouse_dy"})
+    end
+
+    function gfx.mouse_moved()
+        return cmd({"mouse_moved"})
+    end
+
+    function gfx.mouse_down(button)
+        button = expect_number(button, "button", 2)
+        return cmd({"mouse_down", button})
+    end
+
+    function gfx.mouse_pressed(button)
+        button = expect_number(button, "button", 2)
+        return cmd({"mouse_pressed", button})
+    end
+
+    function gfx.mouse_released(button)
+        button = expect_number(button, "button", 2)
+        return cmd({"mouse_released", button})
+    end
+
+    function gfx.mouse_scroll_x()
+        return cmd({"mouse_scroll_x"})
+    end
+
+    function gfx.mouse_scroll_y()
+        return cmd({"mouse_scroll_y"})
+    end
+
+    function gfx.mouse_scrolled()
+        return cmd({"mouse_scrolled"})
+    end
+
+    function gfx.mouse_in_window()
+        return cmd({"mouse_in_window"})
+    end
+
+    function gfx.mouse_entered()
+        return cmd({"mouse_entered"})
+    end
+
+    function gfx.mouse_left()
+        return cmd({"mouse_left"})
+    end
+
+    function gfx.mouse_fb_x()
+        return cmd({"mouse_fb_x"})
+    end
+
+    function gfx.mouse_fb_y()
+        return cmd({"mouse_fb_y"})
+    end
+
+    function gfx.mouse_fb_ix()
+        return cmd({"mouse_fb_ix"})
+    end
+
+    function gfx.mouse_fb_iy()
+        return cmd({"mouse_fb_iy"})
+    end
+
+    function gfx.set_cursor_visible(visible)
+        visible = expect_bool(visible, "visible", 2)
+        return cmd({"set_cursor_visible", visible})
+    end
+
+    function gfx.cursor_visible()
+        return cmd({"cursor_visible"})
+    end
+
+    function gfx.set_cursor_captured(captured)
+        captured = expect_bool(captured, "captured", 2)
+        return cmd({"set_cursor_captured", captured})
+    end
+
+    function gfx.cursor_captured()
+        return cmd({"cursor_captured"})
+    end
+
     function gfx.request_close()
         return cmd({"request_close"})
     end
@@ -457,13 +562,28 @@ return function(cmd)
     x = gfx.mouse_x,
     y = gfx.mouse_y,
     pos = gfx.mouse_pos,          -- optional returns x,y
+    prev_x = gfx.mouse_prev_x,
+    prev_y = gfx.mouse_prev_y,
     dx = gfx.mouse_dx,
     dy = gfx.mouse_dy,
+    moved = gfx.mouse_moved,
     down = gfx.mouse_down,
     pressed = gfx.mouse_pressed,
     released = gfx.mouse_released,
     scroll_x = gfx.mouse_scroll_x,
     scroll_y = gfx.mouse_scroll_y,
+    scrolled = gfx.mouse_scrolled,
+    in_window = gfx.mouse_in_window,
+    entered = gfx.mouse_entered,
+    left = gfx.mouse_left,
+    fb_x = gfx.mouse_fb_x,
+    fb_y = gfx.mouse_fb_y,
+    fb_ix = gfx.mouse_fb_ix,
+    fb_iy = gfx.mouse_fb_iy,
+    set_cursor_visible = gfx.set_cursor_visible,
+    cursor_visible = gfx.cursor_visible,
+    set_cursor_captured = gfx.set_cursor_captured,
+    cursor_captured = gfx.cursor_captured,
 }
 
 

@@ -68,6 +68,36 @@ local OPS = {
   { name="key_pressed",  callback_name="cb_key_pressed",  ret="bool", args={ {"int","key"} } },
   { name="key_released", callback_name="cb_key_released", ret="bool", args={ {"int","key"} } },
 
+  { name="mouse_x",        callback_name="cb_mouse_x",        ret="double", args={} },
+  { name="mouse_y",        callback_name="cb_mouse_y",        ret="double", args={} },
+  { name="mouse_prev_x",   callback_name="cb_mouse_prev_x",   ret="double", args={} },
+  { name="mouse_prev_y",   callback_name="cb_mouse_prev_y",   ret="double", args={} },
+  { name="mouse_dx",       callback_name="cb_mouse_dx",       ret="double", args={} },
+  { name="mouse_dy",       callback_name="cb_mouse_dy",       ret="double", args={} },
+  { name="mouse_moved",    callback_name="cb_mouse_moved",    ret="bool",   args={} },
+
+  { name="mouse_down",     callback_name="cb_mouse_down",     ret="bool", args={ {"int","button"} } },
+  { name="mouse_pressed",  callback_name="cb_mouse_pressed",  ret="bool", args={ {"int","button"} } },
+  { name="mouse_released", callback_name="cb_mouse_released", ret="bool", args={ {"int","button"} } },
+
+  { name="mouse_scroll_x", callback_name="cb_mouse_scroll_x", ret="double", args={} },
+  { name="mouse_scroll_y", callback_name="cb_mouse_scroll_y", ret="double", args={} },
+  { name="mouse_scrolled", callback_name="cb_mouse_scrolled", ret="bool",   args={} },
+
+  { name="mouse_in_window", callback_name="cb_mouse_in_window", ret="bool", args={} },
+  { name="mouse_entered",   callback_name="cb_mouse_entered",   ret="bool", args={} },
+  { name="mouse_left",      callback_name="cb_mouse_left",      ret="bool", args={} },
+
+  { name="mouse_fb_x",   callback_name="cb_mouse_fb_x",   ret="double", args={} },
+  { name="mouse_fb_y",   callback_name="cb_mouse_fb_y",   ret="double", args={} },
+  { name="mouse_fb_ix",  callback_name="cb_mouse_fb_ix",  ret="int",    args={} },
+  { name="mouse_fb_iy",  callback_name="cb_mouse_fb_iy",  ret="int",    args={} },
+
+  { name="set_cursor_visible",  callback_name="cb_set_cursor_visible",  ret=nil,    args={ {"bool","visible"} } },
+  { name="cursor_visible",      callback_name="cb_cursor_visible",      ret="bool", args={} },
+  { name="set_cursor_captured", callback_name="cb_set_cursor_captured", ret=nil,    args={ {"bool","captured"} } },
+  { name="cursor_captured",     callback_name="cb_cursor_captured",     ret="bool", args={} },
+
   { name="should_close",  callback_name="cb_should_close",  ret="bool", args={} },
   { name="request_close", callback_name="cb_request_close", ret=nil,    args={} },
   { name="poll_events",   callback_name="cb_poll_events",   ret=nil,    args={} },
